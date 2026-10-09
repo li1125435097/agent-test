@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>代理检测</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>代理检测</h1>
+      <p>检查代理是否可用，并查看出口 IP、位置和运营商。已保存代理会加密存储在浏览器本地。</p>
+    </div>
+    <div class="direct" id="direct">正在查询本机出口…</div>
+  </header>
+
+  <div class="page-shell">
+    <div class="main-column">
+      
+
+      <div class="layout">
+        <section class="card">
+          <div class="card-head">
+            <h2>批量 URL</h2>
+            <span id="count">每行一个代理</span>
+          </div>
+          <textarea id="urlInput" spellcheck="false" placeholder="socks5://1.2.3.4:1080:username:password
+http://5.6.7.8:8080:username:password"></textarea>
+          <p class="hint">格式 <code>协议://主机:端口:账号:密码</code>，也支持 <code>协议://账号:密码@主机:端口</code>。不写协议时按 socks5。以 # 开头的行会跳过。清空按钮不会删除已保存列表。</p>
+          <div class="actions">
+            <button type="button" id="checkUrls" class="primary">检测全部</button>
+            <button type="button" id="fillForm">识别到表单</button>
+            <button type="button" id="clearBtn">清空输入</button>
+            <button type="button" id="stopBtn" disabled>停止</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>填写代理</h2>
+          </div>
+          <form id="proxyForm">
+            <div class="row2">
+              <label>协议
+                <select id="protocol">
+                  <option value="socks5">SOCKS5</option>
+                  <option value="socks4">SOCKS4</option>
+                  <option value="http">HTTP</option>
+                  <option value="https">HTTPS</option>
+                </select>
+              </label>
+              <label>端口
+                <input id="port" inputmode="numeric" placeholder="1080" autocomplete="off" />
+              </label>
+            </div>
+            <label>主机
+              <input id="host" placeholder="1.2.3.4" autocomplete="off" />
+            </label>
+            <label>账号
+              <input id="username" autocomplete="off" />
+            </label>
+            <label>密码
+              <span class="password">
+                <input id="password" type="password" autocomplete="new-password" />
+                <button type="button" id="togglePass">显示</button>
+              </span>
+            </label>
+            <div class="actions">
+              <button type="submit" id="checkForm" class="primary">检测此代理</button>
+              <button type="button" id="appendBtn">追加到 URL</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <section class="card proxy-vault">
+        <div class="card-head">
+          <h2>已保存代理</h2>
+          <span id="vaultCount">0 条</span>
+        </div>
+        <div class="vault-toolbar actions">
+          <button type="button" id="vaultSelectAll">全选</button>
+          <button type="button" id="vaultCheckSelected" class="primary">检测选中</button>
+          <button type="button" id="vaultCheckAll">检测全部</button>
+          <button type="button" id="vaultDeleteSelected">删除选中</button>
+          <span class="vault-selected" id="vaultSelected">未选择</span>
+        </div>
+        <div class="proxy-table-wrap">
+          <table class="proxy-table" id="proxyTable">
+            <thead>
+              <tr>
+                <th class="col-check"><input type="checkbox" id="vaultHeadCheck" aria-label="全选" /></th>
+                <th>协议</th>
+                <th>主机</th>
+                <th>账号</th>
+                <th>链式上游</th>
+                <th class="col-actions">操作</th>
+              </tr>
+            </thead>
+            <tbody id="proxyTableBody">
+              <tr class="empty-row"><td colspan="6">还没有保存的代理。检测或追加后会自动加入列表。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p class="message" id="message"></p>
+    </div>
+
+    <aside class="results">
+      <div class="card-head">
+        <h2>检测结果</h2>
+        <span id="summary">还没有检测</span>
+      </div>
+      <div id="resultList" class="result-list">
+        <p class="empty" id="empty">开始检测后，结果会显示在此处。</p>
+      </div>
+    </aside>
+  </div>
+
+  <dialog id="chainDialog" class="chain-dialog">
+    <form method="dialog" id="chainForm">
+      <div class="card-head">
+        <h2>链式上游</h2>
+        <button type="button" id="chainClose" class="dialog-close" aria-label="关闭">×</button>
+      </div>
+      <p class="hint">连接顺序：本机 → 所选上游（按勾选顺序）→ 当前代理 → 目标网站。最多 7 个上游（含出口共 8 跳）。</p>
+      <p class="chain-target" id="chainTarget"></p>
+      <div id="chainOptions" class="chain-options"></div>
+      <div class="actions">
+        <button type="submit" class="primary">保存</button>
+        <button type="button" id="chainCancel">取消</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/store.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
